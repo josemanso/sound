@@ -1,95 +1,74 @@
-# Chorus effects con IIR
+# chorus 
 import sys
 import os
-import matplotlib
-matplotlib.use('TkAgg')
 import numpy as np
 from scipy.io import wavfile
-from scipy.signal import lfilter
 import matplotlib.pyplot as plt
-
 
 # entrada de argumentos
 try:
     if len(sys.argv) == 1:
-       file_input = "yooh.wav"
-        
+       #file_input = "channel_1.wav"
+       file_input = "guitar.wav" 
     else:
         file_input = sys.argv[1]
         print(sys.argv[1])
-        
-    
 except IOError as ex:
     print(ex)
 # excepcion de fichero
 if os.path.isfile("/home/josemo/python/wavfiles/"+file_input):
     filename ="/home/josemo/python/wavfiles/"+file_input
+    #filename ="/home/josemo/"+file_input
     print('file exit')
 else:
     print('File not exit')
     exit()
-    
-#
+
 # read wave file
 fs, data = wavfile.read(filename)
+print(' fs', fs,' shapes ', data.shape, ' data ', data)
 
-# Chorus multivoz
+# tipical delay, entre 10 y 50 ms, LFO entre 5 y 14 Hz
+# chorus parameters
+index = np.arange(len(data))
+rate1 = 7
+rate2 = 10
+rate3 = 12
+A = 5 # amplitud
+lfo1 = A*np.sin(2*np.pi*index*(rate1/fs))
+lfo2 = A*np.sin(2*np.pi*index*(rate2/fs))
+lfo3 = A*np.sin(2*np.pi*index*(rate3/fs))
+# ganancias 1
+g = 0.20 
 
-# retraso voz 1 m = 0.02 * fs = 882, 0.015 = 662, delay1 = 800, delay2= 660
-# LFO frec rate at 0.1 - 5 Hz LFO; (rate) delay; Fd = 0.1 y fd2 = 0.3 ( randon a mano)
-# ganancias a 0.98 y 0.97
-# entre 40 y 60 ms y alrededor de 0.25 Hz
-delay = 800 # samples
-delay1 = 700
-b = np.zeros(delay)
-#b[-1] = 1
-b[0] = 1
-a = np.zeros(delay)
-a[0] = 1
-a[-1] = -0.60  # ganancia
-n = np.arange(delay)
-b1 = np.zeros(delay1)
-b1[0] =1
-#b1[-1] = 1
+delay = int(0.040*fs) # frames
 
-a1= np.zeros(delay1)
-a1[0] = 1
-a1[-1] = -0.70  # ganancia
-n1 = np.arange(delay1)
+y = np.zeros(len(data))
+y[:delay+5] = data[:delay+5]
+for i in range (delay +5, len(data)):
+    M1 = delay +int(lfo1[i])
+    M2 = delay + int(lfo2[i])
+    M3 = delay +int(lfo3[i])
+    y[i] = g*data[i] + g*data[i-M1]+g*data[i-M2]+g*data[i-M3]
+    #y[i] = data[i] + data[i-m1]+data[i-m2]+data[i-m3]
 
-delay2 = 900
-a2= np.zeros(delay2)
-b2 = np.zeros(delay2)
-b2[0] = 1
-a2[0] = 1
-a2[-1] = -0.65  # ganancia
-n2 = np.arange(delay1)
-# LFO
+#y = y/4.5
 
-
-lfo_ref = np.sin(2*np.pi*0.01/fs)
-lfo_ref1 = np.sin(2*np.pi*0.03/fs)
-
-lfo_ref2 = np.sin(2*np.pi*0.02/fs)
-
-
-denum = a + lfo_ref
-denum1 = a1 + lfo_ref1
-
-denum2 = a2 + lfo_ref2
-
-data_filt = lfilter(b,denum, data)
-data_filt1 = lfilter(b1, denum1, data)
-data_filt2 = lfilter(b2, denum2, data)
-
-data_all =(data_filt + data_filt1 + data_filt2)/4
-
-wavfile.write('/home/josemo/python/wavfiles/chorus.wav', 
-              fs, data_all.astype(np.int16))
-fs1, data1 = wavfile.read('/home/josemo/python/wavfiles/chorus.wav')
+print('y ', y.shape, 'datos ', y)
+# write wav file
+try:
+    wavfile.write('/home/josemo/python/wavfiles/chorus.wav',
+                       fs, y.astype(np.int16))
+        #print('Escritura de archivo correcta') 
+except IOError as e:
+    #  # parent of IOError, OSError *and* WindowsError where available
+    print('Error al escritura el archivo')
+    print(e)  
+#plot
+plt.figure(figsize=(8,5))
 time = np.arange(len(data))/fs
-plt.plot(time, data1, 'r--',time, data,'g--')
+plt.plot(time, data, 'g--',time, y,'r--')
 plt.title('Chorus')
-plt.xlabel('Original verde, Coro rojo')
-plt.show()
+plt.xlabel('Rojo datos chorus, verde, audio original')
 
+plt.show()
