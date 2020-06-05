@@ -125,8 +125,6 @@ fs, data = wavfile.read(filename)
 print('data ', data.shape, ' fs ', fs)
 print ('data ', data)
 
-# read wave file
-#fs, data = wavfile.read('/home/josemo/python/wavfiles/fish.wav')
 
 # algotirmo Moorer
 # delay de cada comb filter
@@ -169,8 +167,6 @@ except IOError as e:
     #  # parent of IOError, OSError *and* WindowsError where available
     print('Error al escritura el archivo')
     print(e)
-# write wav file
-#wavfile.write('/home/josemo/python/wavfiles/reverb1.wav', fs, y.astype(np.int16))
 
 #plot
 time = np.arange(len(data))/fs
