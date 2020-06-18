@@ -5,7 +5,7 @@ import matplotlib
 matplotlib.use('TkAgg')
 import numpy as np
 from scipy.io import wavfile
-from scipy.signal import iirpeak, sawtooth
+from scipy.signal import iirpeak #, sawtooth
 import matplotlib.pyplot as plt
 
 # entrada de argumentos
@@ -32,7 +32,7 @@ else:
 fs, data = wavfile.read(filename)
 print('data ', data.shape, ' fs ', fs)
 
-time = np.arange(len(data))/fs
+#time = np.arange(len(data))/fs
 
 cut_min = 500    # LFO minval, Hz
 cut_max = 3000   # LFO maxval, Hz
@@ -49,7 +49,7 @@ while (len(fc)<len(data)):
     fc = np.append(fc, np.arange(cut_max, cut_min, -delta))
 # quitamos lo qe sobra
 fc = fc[:len(data)]
-# LFO es el fc
+# fc es el LFO
     
 y = np.zeros(len(data))
 
