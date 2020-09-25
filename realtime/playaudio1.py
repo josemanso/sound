@@ -7,16 +7,14 @@ Created on Mon May 11 16:06:38 2020
 """
 
 import pyaudio
-#import wave
 import time
 
-WIDTH = 2
-CHUNK = 1024
+#WIDTH = 2
+#CHUNK = 1024
 RATE = 44100
-#wav_file = 'output.wav'
+
 
 pa = pyaudio.PyAudio()
-#wf = wave.open(wav_file, 'rb')
 
 def callback(in_data, frame_count, time_info, status):
     # convert data to array
@@ -37,7 +35,6 @@ while stream.is_active():
     stream.stop_stream()
     print("Stream is stopped")
     
-#stream.stop_stream()
 stream.close()
 
 pa.terminate

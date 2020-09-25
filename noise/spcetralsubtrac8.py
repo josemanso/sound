@@ -19,12 +19,13 @@ def spectralSubtraction(data, f_size, n_frames, alpha):
     # samples stores a list of overloappedwindow size
     samples = []
     
-    # phases  stores a list phases information of every frames
+    # phases stores a list phases information of every frames
     phases  =[]
     
     # out will be the final reconstruction signal
     #out = []
-    y = np.zeros(len(data))
+    #y = np.zeros(len(data))
+    y = np.zeros((len(data)), dtype='complex')
     # primer tramo para la reconstrucción
     y[:f_size] = data[:f_size]
     
@@ -62,11 +63,10 @@ def spectralSubtraction(data, f_size, n_frames, alpha):
         # elemento a elemnto y nos quedamos con una
         noise = list(map(lambda x, y : x+y, noise, samples[i]))
         
-        
     # Get an average noise magnitude
     noise = list(map(lambda x: x/n_frames, noise))
     noise = np.mean(noise) # ya tenemos un valor medio
-    
+    print('noise ', noise)    
     # multiply bia to noises, factor de aumento del ruido
     #noise *=7
     noise*=alpha
@@ -90,6 +90,7 @@ def spectralSubtraction(data, f_size, n_frames, alpha):
         samples[i] =list(map(lambda x, y: x*np.exp(1j*y), samples[i], phases[i]))
         samples[i] = ifft(samples[i])
         
+        # overlap
         ind = int(f_size/2)
         
         for j in range(f_size):
@@ -125,12 +126,12 @@ window_size = 400 #512
 noise_frames = 100# máximo,como tenemos overlap 50%, 0,6s
 alpha = 5
 y =spectralSubtraction(data, window_size, noise_frames, alpha)
-print('y ', y.shape, ' y data ', y)
-print('ite data ', len(data), ' data taples ', data.shape) 
+#print('y ', y.shape, ' y data ', y)
+#print('ite data ', len(data), ' data taples ', data.shape) 
 # write wav file
 try:
     wavfile.write('/home/josemo/python/wavfiles/ruidoless6.wav',
-                       fs, y.astype(np.int16))
+                       fs, y.real.astype(np.int16))
         #print('Escritura de archivo correcta') 
 except IOError as e:
     #  # parent of IOError, OSError *and* WindowsError where available
@@ -138,7 +139,7 @@ except IOError as e:
     print(e)
     
 time = np.arange(len(data))/fs
-plt.plot(time, data,'g--',time, y, 'r--')#,time, data,'g--')
+plt.plot(time, data,'g--',time, y.real, 'r--')#,time, data,'g--')
 
 plt.title('spectral subtraction ')
 plt.xlabel('Original green, resta red')

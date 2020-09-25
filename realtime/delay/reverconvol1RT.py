@@ -30,8 +30,8 @@ def callback(in_data, frame_count, time_info, status):
     cola = np.append(cola, data)
     if (len(cola) == 344*1204):
         # convolución
-         samples = fconv(cola, RIR)
-         cola = ([])
+        samples = fconv(cola, RIR)
+        cola = ([])
     # ahora hay que ir dando datos de 1024 en 1024
     else:
         out = samples[0:1024]

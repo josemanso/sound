@@ -2,6 +2,7 @@
 import numpy as np
 import pyaudio
 import time
+import queue as queue
 
 #  tipical delay, 5-10 ms, LFO 4-14 Hz
 
@@ -15,22 +16,34 @@ index = np.arange(CHUNK)
 lfo = np.sin(2*np.pi*index*fo/fs)
 
 RATE = 44100
+
+#para guardar el dato anterior, y el actual
+q = queue.Queue(2) 
 pa= pyaudio.PyAudio()
 
 def callback(in_data, frame_count, time_info, status):
     # convert data to array
     data = np.frombuffer(in_data, np.int16)
-    #print('data ', len(data))
+    q.put(data)
     # hacemos el computo
     y = np.zeros(len(data))
-    for i in range(len(data)):
-        M = (1+delay + delay * lfo[i])
-        Mi = int(M)
-        frac = M-Mi
-        #primeros retardos han de ser positivos
-        if (Mi+1) > i:
-            Mi = i-1
-        y[i] = data[i-(Mi+1)]*frac + data[i-Mi]*(1-frac)
+    if q.full(): # tenemos el data acual y el anteior
+        # cogemos en anterior
+        last_data = q.get()
+        for i in range(len(data)):
+            M = (1+delay + delay * lfo[i])
+            Mi = int(M)
+            frac = M-Mi
+            if Mi > i: #and (Mi+1) > i:
+                # last_data
+                y[i] = (last_data[1024 +i-(Mi+1)] *frac +
+                        last_data[1024 + i -Mi] *(1-frac))
+                
+            elif Mi+1 > i:
+                y[i] = (last_data[1024 +i-(Mi+1)] *frac +
+                         data[i -Mi] *(1-frac))
+            else:
+                y[i] = data[i-(Mi+1)]*frac + data[i-Mi]*(1-frac)
 
     sample = y.astype(np.int16).tostring()
     return (sample, pyaudio.paContinue)

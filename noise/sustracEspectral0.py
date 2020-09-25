@@ -14,18 +14,14 @@ import matplotlib.pyplot as plt
 from scipy.io import wavfile
 from scipy.fftpack import fft, ifft, fftfreq
 from scipy.signal import windows
-#from scipy.signal import stft, istft
 
 
-
-
-
-
-#The noisy signal y(m) is a sum of the desired signal x(m) and the noise n(m):
-
-#   y(m) = x(m) + n(m)
+#The noisy signal y(m) is a sum of the desired signal
+# x(m) and the noise n(m);  y(m) = x(m) + n(m)
 # In the frequency domain, this may be denoted as:
 # Y(jω) = X(jω) + N(jω)  =>  X(jω) = Y(jω) - N(jω)
+
+
 def drawFFT(fs, wav_data, no_sample_points):
     N = no_sample_points
     # sample spacing
@@ -33,7 +29,7 @@ def drawFFT(fs, wav_data, no_sample_points):
     #x = np.linspace(0,N*T, N)
     x = np.arange(N)/fs
     y = wav_data
-    plt.plot(x,y)
+    #plt.plot(x,y)
     yf = fft(y)
     xf = np.linspace(0.0,1.0/(2.0*T), int(N/2))
     plt.plot(xf, int(2.0/N)*np.abs(yf[:N//2]))
@@ -163,7 +159,8 @@ time = np.arange(len(data))/fs
 #plt.plot(time,data)
 ax.plot(time,data)
 ax.plot(y)
-plt
+#plt
+ax.plot(data, y)
 plt.title('spectral substraction ')
 plt.xlabel('Original green, ecualizada red')
 plt.show()

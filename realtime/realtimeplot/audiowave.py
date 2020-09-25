@@ -1,9 +1,10 @@
 try:
     import pyaudio
     import numpy as np
-    from matplotlib import use
+    import time
+    from tkinter import TclError
     import matplotlib.pyplot as plt
-    import matplotlib.animation as animation
+
 except ImportError:
     raise ImportError('Faltan móduos externos que instalar')
 
@@ -23,6 +24,7 @@ stream = p.open(format = FORMAT,
                 output = True,
                 frames_per_buffer = CHUNK)
 
+
 #definición de la figura (matplotlib)
 fig, ax = plt.subplots(figsize=(14,6))
 
@@ -35,14 +37,28 @@ ax.set_ylim(-10000,10000)
 ax.set_xlim(0,CHUNK)#make sure our x axis matched our chunk size
 line, = ax.plot(x, np.random.rand(CHUNK))
 
+print('stream started')
+
+# for measuring frame rate
+frames_count = 0
+start_time = time.time()
+
 # hecho nuestri gráfico, podemos empezar a plotear nuestra señal
 while True:
     data = stream.read(CHUNK)
     data = np.frombuffer(data, np.int16)
     line.set_ydata(data)
-    fig.canvas.draw()
-    fig.canvas.flush_events()
-    plt.pause(0.01)
+    try:
+        fig.canvas.draw()
+        fig.canvas.flush_events()
+        plt.pause(0.01)
+    except TclError:
+        # calculate average frame rate
+        frame_rate = frames_count / (time.time() - start_time)
+        
+        print('stream stopped')
+        print('average frame rate = {:.0f} FPS'.format(frame_rate))
+        break
 
 plt.show()
     
