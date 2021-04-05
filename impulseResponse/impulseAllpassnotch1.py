@@ -89,7 +89,7 @@ fig, ax = plt.subplots(2, 1, figsize=(8, 6))
 #ax[1].plot(freq, np.unwrap(np.angle(h))*180/np.pi)
 ax[0].plot(freq, 20*np.log10(abs(h)), color='blue')
 ax[0].set_xlabel('iirnotch')
-
+ax[0].grid()
 ax[1].plot(freq, 20*np.log10(abs(h1)), color='blue')
 ax[1].set_xlabel('allpas iirnotch')
 

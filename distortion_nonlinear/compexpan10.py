@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Jun 16 15:52:02 2020
-
-@author: josemo
-"""
-
 # Compresor expansor
 # Compressor Expander
 import sys
@@ -16,70 +8,60 @@ import numpy as np
 from scipy.io import wavfile
 import matplotlib.pyplot as plt
 
-def compressor(ind, xc, R, th, d, gain):
-    rcomp = 1/R # ratio compressor
-    d0 = th # threshold
-    
-    if abs(xc[ind]) >= abs(xc[ind-1]):
-        d[ind] = d[ind-1] + abs(xc[ind])
-    else:
-        d[ind] = d[ind-1]
-    # ganacia para comprimir
-    if d[ind] >= d0:
-        gain[ind] = (d[ind]/d0)**(rcomp-1)
-    #else:
-        #gain[ind] = 1
-    #print('d compr ', d[ind], ' gain ', gain[ind])
-        
-def expander(ind, xe, Ra, thresh, d, gain):
-    rexp = Ra+2
-    d0 = thresh
-    
-    if abs(xe[ind-1] < 0.0001):
-        # ruido
-        gain[ind-1]=0
-    else:
-        if abs(xe[ind]<= abs(xe[ind-1])):
-            d[ind] = d[ind-1] +abs(xe[ind])
-            #d[ind] = d[ind-1]
-        else:
-            d[ind] = d[ind-1]
-            #d[ind] = d[ind-1] +abs(xe[ind])
-        #gain
-        if d[ind] <= d0:
-            #gain[ind] = (d[ind]/d0)**(rexp-1)
-            gain[ind] = (d0/d[ind])**(rexp-1)
-        
-    #print('dexpander ', d[ind]/d0, ' gain ', gain[ind])
-
 
 def comprexpander(x, ratio, th_compress, th_expan):
     # x data input
     # ratio  ratio conpressor 1/ratio, expander ratio
     # th  threshold
     
-    th_c = 10**(th_compress/20)
-    th_e = 10**(th_expan/20)
-    d = np.zeros(len(x))
-    d = x
+    th_c = 10**(th_compress/20)* 32769 # 2¹⁵
+    th_e = 10**(th_expan/20) * 32769
+    print( 'the' ,th_e)
+    cn = np.zeros(len(x))
     gain = np.ones(len(x))
+    gain_c = np.ones(len(x))
+    gain_e = np.ones(len(x))
     out = np.zeros(len(x))
     out[0] = x[0]
-    
+    cn[0] = abs(x[0])
     for i in range(1,len(x)):
+        #cn[i] = 0.9 * cn[i-1] + 0.1 * abs(x[i])
+        cn[i] = abs(x[i])
+        
         if abs(x[i]) > th_c:
-            compressor(i, x, ratio, th_c, d, gain)
-            
-        elif (abs(x[i]) < th_e) and (abs(x[i]) > 0.001):
-            expander(i, x, ratio, th_e, d, gain)
+            #compressor(i, x, ratio, th_c, d, gain)
+            #if cn[i] >= th_c :
+            gain[i] = (cn[i] / th_c)**(1/ratio - 1)
+            gain_c[i] = gain[i]
+            # sino gain = 1   
+        #if (abs(x[i]) < th_e) and (abs(x[i]) > 0.0001):
+        
+        elif abs(x[i]) < th_e:
+            if (abs(x[i]) > 1):
+            #if (abs(x[i]) > 0.00001):
+                 gain[i] =1/ (cn[i] /th_e)**(ratio -1)
+                 gain_e[i] = gain[i]
+            else:
+                gain[i] = 0
+                gain_e[i] = gain[i]
+            # expander excpto el ruido
+            #if abs(x[i]) > 0.0001:
+                # mayor que sonido muybajo ó ruido
+                # solo si es mayo se expande
+            #if cn[i] <= th_e :
+                #gain[i] = (th_e /cn[i])**(ratio - 1)
+            #gain[i] = (cn[i] /th_e)**(ratio -1)
+            #gain_e[i] = gain[i]
+            #and (abs(x[i]) > 0.001):
+            #expander(i, x, ratio, th_e, d, gain)
+        
         else:
             gain[i] =1
         out[i] = x[i]*gain[i]
-    plt.plot(gain)
-    plt.show()
-    return out
+    #plt.plot(gain[])
+    #plt.show()
+    return out, gain, gain_c, gain_e
     
-
 # entrada de argumentos
 try:
     if len(sys.argv) == 1:
@@ -103,18 +85,19 @@ print('data ', data.shape, ' fs ', fs)
 
 # fuera de la curva con ganancia 1
 
-datan = data / 32768  # 2¹⁶ /2
+#datan = data / 32768  # 2¹⁶ /2
 th_comp= -10 # dB
 th_exp = -70 # dB
 #attack = 0.1
 #release = 0.94
-CR = 4
+CR = 4 # ratio  log10(4 ) = 0,6
+#CR = 0.6
 #y = compexpander(datan, attack, release, CR, thComp, thExp)
-y = comprexpander(datan, CR, th_comp, th_exp)
+y, g, gc, ge = comprexpander(data, CR, th_comp, th_exp)
 
 #threshold=0.01)
 
-y = y * 32768
+#y = y * 32768
 # write wav file
 try:
     wavfile.write('/home/josemo/python/wavfiles/comprexpander1.wav',
@@ -134,6 +117,14 @@ plt.figure(2)
 # máx alrededor de 3.6, antes
 
 plt.plot(time,data, 'g--',time,y, 'r--')
-#plt.ylabel("log")
+plt.figure(3)
+plt.plot(time,g)
+plt.figure(4)
+plt.plot(time,gc)
+plt.xlabel('compresión')
+plt.figure(5)
+plt.plot(time,ge)
+plt.xlabel(' expansión ')
+
 plt.grid()
 plt.show()

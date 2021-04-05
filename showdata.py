@@ -32,6 +32,8 @@ Fs, audio = wavfile.read(filename)
 print('frequencia: ', Fs,'Hz')
 print('audioshape: ',audio.shape, ', array longitud \nlongitud: ',len(audio))
 print('datos: \n', audio)
+print(' tipo datos:', audio.dtype)
+print(' tipo datos2: ', type(audio))
 
 time = np.arange(len(audio))/Fs
 plt.plot(time, audio)

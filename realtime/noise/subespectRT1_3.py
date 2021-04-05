@@ -175,14 +175,20 @@ def callback(in_data, frame_count, time_info, status):
     #if len(signal_in) == 3072: #3x 1024 data
     y = noiseless(y_noise, data)
     #y = np.real(y)
-    
-    
+    #print('y ',y.dtype)
+    y = y.real
+    y = y.astype(int)
+    #print('y ',y.dtype)
+    #y_int = y.astype(int32)
+    print('y_i ',y.dtype)
+    #print('y ', y)
         # hacemos el computo
         #signal_out = noiseless(signal_in)
         # quitamos el primer chunk
         #signal_in = signal_in[1024:]
     #y = y.astype(np.int16).tostring()
-    y = y.astype(np.int16).tobytes()
+    y = y.astype(np.int32).tobytes()
+    #print('y ',y.dtype)
     return (y, pyaudio.paContinue)
     #return (data, pyaudio.paContinu
 p = pyaudio.PyAudio()
