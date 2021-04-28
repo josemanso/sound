@@ -1,4 +1,6 @@
 # Falging effect
+import matplotlib
+matplotlib.use('TkAgg')
 import sys
 import os
 import numpy as np
@@ -46,6 +48,8 @@ gfb = 0.5 # ganancia en la realimentación delay, ffedback
 
 index = np.arange(len(data))
 sin_ref = np.sin(2*np.pi*index*(rate/fs))
+plt.plot(sin_ref)
+plt.show()
 y = np.zeros(len(data))
 y[:max_time_delay] = data[:max_time_delay] # = np.copy(data)
 

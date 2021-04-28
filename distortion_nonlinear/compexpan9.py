@@ -35,9 +35,10 @@ def expander(ind, xe, Ra, thresh, d, gain):
     rexp = Ra+2
     d0 = thresh
     
-    if abs(xe[ind-1] < 0.0001):
+    if abs(xe[ind] < 0.0001):
         # ruido
-        gain[ind-1]=0
+        gain[ind]=0
+        gain_e[ind]=0
     else:
         if abs(xe[ind]<= abs(xe[ind-1])):
             d[ind] = d[ind-1] +abs(xe[ind])
@@ -49,6 +50,7 @@ def expander(ind, xe, Ra, thresh, d, gain):
         if d[ind] <= d0:
             #gain[ind] = (d[ind]/d0)**(rexp-1)
             gain[ind] = (d0/d[ind])**(rexp-1)
+            gain_e[ind]= gain[ind]
         
     #print('dexpander ', d[ind]/d0, ' gain ', gain[ind])
 
@@ -63,6 +65,7 @@ def comprexpander(x, ratio, th_compress, th_expan):
     d = np.zeros(len(x))
     d = x
     gain = np.ones(len(x))
+    gain_e = np.ones(len(x))
     out = np.zeros(len(x))
     out[0] = x[0]
     
@@ -75,7 +78,7 @@ def comprexpander(x, ratio, th_compress, th_expan):
         else:
             gain[i] =1
         out[i] = x[i]*gain[i]
-    plt.plot(gain)
+    plt.plot(gain_e)
     plt.show()
     return out
     

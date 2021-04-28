@@ -79,8 +79,8 @@ fs, data1 = wavfile.read(filein)
 
 time = np.arange(len(data))/fs
 
-#plt.plot(time,data, 'g--', time, y,'r--')
-plt.plot(time, fc)
+plt.plot(time,data, 'g--', time, y,'r--')
+#plt.plot(time, fc)
 plt.title('Efecto wah-wah')
 #plt.xlabel('señal original verde, señal filtrada rojo')
 plt.xlabel('tiempo')

@@ -24,7 +24,7 @@ def comprexpander(x, ratio, th_compress, th_expan):
     gain_e = np.ones(len(x))
     out = np.zeros(len(x))
     out[0] = x[0]
-    cn[0] = abs(x[0])
+    cn[0] = abs(x[0]) #
     for i in range(1,len(x)):
         #cn[i] = 0.9 * cn[i-1] + 0.1 * abs(x[i])
         cn[i] = abs(x[i])
@@ -48,9 +48,11 @@ def comprexpander(x, ratio, th_compress, th_expan):
         #if (abs(x[i]) < th_e) and (abs(x[i]) > 0.0001):
         
         elif abs(x[i]) < th_e:
-            if (abs(x[i]) > 1):
+            if (abs(x[i]) > 10):
             #if (abs(x[i]) > 0.00001):
                 gain[i] =1/ (cn[i] /th_e)**(ratio -1)
+                #gain[i] = (cn[i] /th_e)**(ratio -1)
+                #gain[i] = (th_e / cn[i])**(ratio -1)
                 gain_e[i] = gain[i]
             else:
                 gain[i] = 0
@@ -98,7 +100,7 @@ print('data ', data.shape, ' fs ', fs)
 
 #datan = data / 32768  # 2¹⁶ /2
 th_comp= -10 # dB
-th_exp = -70 # dB
+th_exp = -60 # dB
 #attack = 0.1
 #release = 0.94
 CR = 4 # ratio  log10(4 ) = 0,6
@@ -123,11 +125,14 @@ time = np.arange(len(data))/fs
 plt.figure(1)
 #plt.subplot(211)
 plt.plot(time, y, 'r--', time, data,'g--')
+plt.xlabel('Señal original verde, señal comprimida /espandida, rojo')
 #plt.subplot(212)
 plt.figure(2)
 # máx alrededor de 3.6, antes
 
 plt.plot(time,data, 'g--',time,y, 'r--')
+plt.xlabel('Señal original verde, señal comprimida /espandida, rojo')
+
 plt.figure(3)
 plt.plot(time,g)
 plt.figure(4)
