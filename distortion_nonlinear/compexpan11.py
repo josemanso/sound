@@ -42,7 +42,8 @@ def comprexpander(x, ratio, th_compress, th_expan):
                 cn[i] = cn[i-1]
                 #cn[i] = (1-AT)*cn[i-1] + AT * cn[i]
                 
-            gain[i] = (cn[i] / th_c)**(1/ratio - 1)
+            #gain[i] = (cn[i] / th_c)**(1/ratio - 1)
+            gain[i] = (th_c/cn[i])**(1-1/ratio)
             gain_c[i] = gain[i]
             # sino gain = 1   
         #if (abs(x[i]) < th_e) and (abs(x[i]) > 0.0001):

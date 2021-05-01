@@ -16,7 +16,7 @@ def comprexpander(x, ratio, th_c, th_e):
     # th_e umbral expansión
     
     th_c = 10**(th_c /20)* 32769 # 2¹⁵
-    th_e = 10**(th_e /20)* 32769 
+    th_e = 10**(th_e /20)* 32769 # esta operación debe estar fuera
     cn = np.zeros(1024)# salida detector de nivel
     gain = np.ones(1024)
     #gain_c = np.ones(len(x))
